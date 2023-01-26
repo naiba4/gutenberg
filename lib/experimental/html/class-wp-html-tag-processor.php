@@ -1439,11 +1439,11 @@ class WP_HTML_Tag_Processor {
 	 * @return string|boolean|null Value of enqueued update if present, otherwise false.
 	 */
 	private function get_enqueued_attribute_value( $comparable_name ) {
-		if ( ! isset( $this->lexical_updates[ $comparable_name ] ) ) {
+		if ( ! isset( $this->attribute_updates[ $comparable_name ] ) ) {
 			return false;
 		}
 
-		$enqueued_text = $this->lexical_updates[ $comparable_name ]->text;
+		$enqueued_text = $this->attribute_updates[ $comparable_name ]->text;
 
 		// Removed attributes erase the entire span.
 		if ( '' === $enqueued_text ) {
@@ -1517,7 +1517,7 @@ class WP_HTML_Tag_Processor {
 
 		/*
 		 * For every attribute other than `class` we can perform a quick check if there's an
-		 * enqueued lexical update whose value we should prefer over what's in the input HTML.
+		 * enqueued attribute update whose value we should prefer over what's in the input HTML.
 		 *
 		 * The `class` attribute is special though because we expose the helpers `add_class`
 		 * and `remove_class` which form a builder for the `class` attribute, so we have to
@@ -1818,8 +1818,8 @@ class WP_HTML_Tag_Processor {
 
 		// If we updated an attribute we didn't originally have, remove the enqueued update and move on.
 		if ( ! isset( $this->attributes[ $name ] ) ) {
-			if ( isset( $this->lexical_updates[ $name ] ) ) {
-				unset( $this->lexical_updates[ $name ] );
+			if ( isset( $this->attribute_updates[ $name ] ) ) {
+				unset( $this->attribute_updates[ $name ] );
 			}
 			return false;
 		}
