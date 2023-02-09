@@ -89,7 +89,6 @@ export default function LinkPreviewEdit( props ) {
 						<Button variant="primary" type="submit">
 							{ _x( 'Embed', 'button label' ) }
 						</Button>
-						{ isFetching && <Spinner /> }
 					</form>
 				</Placeholder>
 			</div>
@@ -111,18 +110,27 @@ export default function LinkPreviewEdit( props ) {
 					/>
 				</ToolbarGroup>
 			</BlockControls>
-			{ image && <img src={ image } alt={ title } /> }
-			<div>
-				{ title && <strong>{ title }</strong> }
-				{ icon && (
-					<img
-						className="link-preview__icon"
-						src={ icon }
-						alt={ new URL( url ).host }
-					/>
-				) }
-				{ title ? new URL( url ).host.replace( /^www\./, '' ) : url }
-			</div>
+
+			{ isFetching && <Spinner /> }
+
+			{ ! isFetching && (
+				<>
+					{ image && <img src={ image } alt={ title } /> }
+					<div>
+						{ title && <strong>{ title }</strong> }
+						{ icon && (
+							<img
+								className="link-preview__icon"
+								src={ icon }
+								alt={ new URL( url ).host }
+							/>
+						) }
+						{ title
+							? new URL( url ).host.replace( /^www\./, '' )
+							: url }
+					</div>
+				</>
+			) }
 		</a>
 	);
 }
