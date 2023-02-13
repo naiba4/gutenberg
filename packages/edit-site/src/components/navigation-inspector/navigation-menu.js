@@ -11,6 +11,7 @@ import { useSelect } from '@wordpress/data';
  * Internal dependencies
  */
 import { unlock } from '../../private-apis';
+import Appender from './appender';
 
 /**
  * Experimental dependencies
@@ -35,6 +36,7 @@ export default function NavigationMenu( { onSelect, navigationBlockId } ) {
 				onSelect={ onSelect }
 				LeafMoreMenu={ LeafMoreMenu }
 			/>
+			<Appender clientId={ navigationBlockId } />
 		</>
 	);
 }
