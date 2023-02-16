@@ -4,7 +4,6 @@
 import { store as blocksStore } from '@wordpress/blocks';
 import {
 	registerCoreBlocks,
-	__experimentalGetCoreBlocks,
 	__experimentalRegisterExperimentalCoreBlocks,
 } from '@wordpress/block-library';
 import { dispatch } from '@wordpress/data';
@@ -41,11 +40,7 @@ export function initializeEditor( id, settings ) {
 	settings.__experimentalFetchRichUrlData = fetchUrlData;
 
 	dispatch( blocksStore ).__experimentalReapplyBlockTypeFilters();
-	const coreBlocks = __experimentalGetCoreBlocks().filter(
-		( { name } ) => name !== 'core/freeform'
-	);
-	registerCoreBlocks( coreBlocks );
-	dispatch( blocksStore ).setFreeformFallbackBlockName( 'core/html' );
+	registerCoreBlocks();
 	registerLegacyWidgetBlock( { inserter: false } );
 	if ( process.env.IS_GUTENBERG_PLUGIN ) {
 		__experimentalRegisterExperimentalCoreBlocks( {

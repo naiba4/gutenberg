@@ -139,7 +139,7 @@ const getAllBlocks = () =>
 		buttons,
 		calendar,
 		categories,
-		...( window.wp && window.wp.oldEditor ? [ classic ] : [] ), // Only add the classic block in WP Context.
+		...( window.wp?.oldEditor && window.tinymce ? [ classic ] : [] ), // Only add the classic block in WP Context.
 		code,
 		column,
 		columns,
@@ -257,8 +257,15 @@ export const registerCoreBlocks = (
 	blocks.forEach( ( { init } ) => init() );
 
 	setDefaultBlockName( paragraph.name );
-	if ( window.wp && window.wp.oldEditor ) {
+
+	if (
+		window.wp?.oldEditor &&
+		window.tinymce &&
+		blocks.some( ( { name } ) => name === classic.name )
+	) {
 		setFreeformContentHandlerName( classic.name );
+	} else if ( blocks.some( ( { name } ) => name === html.name ) ) {
+		setFreeformContentHandlerName( html.name );
 	}
 	setUnregisteredTypeHandlerName( missing.name );
 	setGroupingBlockName( group.name );
