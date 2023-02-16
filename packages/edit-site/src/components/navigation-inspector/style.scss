@@ -26,10 +26,6 @@
 	.edit-site-navigation-inspector__select-menu {
 		margin-bottom: $grid-unit-10;
 	}
-
-	.offcanvas-editor-appender {
-		display: none;
-	}
 }
 
 .edit-site-navigation-inspector__placeholder {
@@ -47,8 +43,4 @@
 
 .edit-site-navigation-inspector__empty-msg {
 	padding: 0 $grid-unit-10;
-}
-
-.edit-site-navigation-inspector__appender {
-	margin-left: $grid-unit-10;
 }
