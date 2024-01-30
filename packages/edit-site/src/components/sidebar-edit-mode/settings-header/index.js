@@ -1,10 +1,16 @@
 /**
+ * External dependencies
+ */
+import classnames from 'classnames';
+
+/**
  * WordPress dependencies
  */
 import { Button } from '@wordpress/components';
-import { __ } from '@wordpress/i18n';
-import { useDispatch } from '@wordpress/data';
+import { __, sprintf } from '@wordpress/i18n';
+import { useSelect, useDispatch } from '@wordpress/data';
 import { store as interfaceStore } from '@wordpress/interface';
+import { store as editorStore } from '@wordpress/editor';
 
 /**
  * Internal dependencies
@@ -13,25 +19,22 @@ import { STORE_NAME } from '../../../store/constants';
 import { SIDEBAR_BLOCK, SIDEBAR_TEMPLATE } from '../constants';
 
 const SettingsHeader = ( { sidebarName } ) => {
+	const postTypeLabel = useSelect(
+		( select ) => select( editorStore ).getPostTypeLabel(),
+		[]
+	);
+
 	const { enableComplementaryArea } = useDispatch( interfaceStore );
 	const openTemplateSettings = () =>
 		enableComplementaryArea( STORE_NAME, SIDEBAR_TEMPLATE );
 	const openBlockSettings = () =>
 		enableComplementaryArea( STORE_NAME, SIDEBAR_BLOCK );
 
-	const [ templateAriaLabel, templateActiveClass ] =
+	const documentAriaLabel =
 		sidebarName === SIDEBAR_TEMPLATE
 			? // translators: ARIA label for the Template sidebar tab, selected.
-			  [ __( 'Template (selected)' ), 'is-active' ]
-			: // translators: ARIA label for the Template Settings Sidebar tab, not selected.
-			  [ __( 'Template' ), '' ];
-
-	const [ blockAriaLabel, blockActiveClass ] =
-		sidebarName === SIDEBAR_BLOCK
-			? // translators: ARIA label for the Block Settings Sidebar tab, selected.
-			  [ __( 'Block (selected)' ), 'is-active' ]
-			: // translators: ARIA label for the Block Settings Sidebar tab, not selected.
-			  [ __( 'Block' ), '' ];
+			  sprintf( __( '%s (selected)' ), postTypeLabel )
+			: postTypeLabel;
 
 	/* Use a list so screen readers will announce how many tabs there are. */
 	return (
@@ -39,29 +42,37 @@ const SettingsHeader = ( { sidebarName } ) => {
 			<li>
 				<Button
 					onClick={ openTemplateSettings }
-					className={ `edit-site-sidebar-edit-mode__panel-tab ${ templateActiveClass }` }
-					aria-label={ templateAriaLabel }
-					// translators: Data label for the Template Settings Sidebar tab.
-					data-label={ __( 'Template' ) }
+					className={ classnames(
+						'edit-site-sidebar-edit-mode__panel-tab',
+						{
+							'is-active': sidebarName === SIDEBAR_TEMPLATE,
+						}
+					) }
+					aria-label={ documentAriaLabel }
+					data-label={ postTypeLabel }
 				>
-					{
-						// translators: Text label for the Template Settings Sidebar tab.
-						__( 'Template' )
-					}
+					{ postTypeLabel }
 				</Button>
 			</li>
 			<li>
 				<Button
 					onClick={ openBlockSettings }
-					className={ `edit-site-sidebar-edit-mode__panel-tab ${ blockActiveClass }` }
-					aria-label={ blockAriaLabel }
-					// translators: Data label for the Block Settings Sidebar tab.
+					className={ classnames(
+						'edit-site-sidebar-edit-mode__panel-tab',
+						{
+							'is-active': sidebarName === SIDEBAR_BLOCK,
+						}
+					) }
+					aria-label={
+						sidebarName === SIDEBAR_BLOCK
+							? // translators: ARIA label for the Block Settings Sidebar tab, selected.
+							  __( 'Block (selected)' )
+							: // translators: ARIA label for the Block Settings Sidebar tab, not selected.
+							  __( 'Block' )
+					}
 					data-label={ __( 'Block' ) }
 				>
-					{
-						// translators: Text label for the Block Settings Sidebar tab.
-						__( 'Block' )
-					}
+					{ __( 'Block' ) }
 				</Button>
 			</li>
 		</ul>

@@ -6,26 +6,21 @@
  */
 
 /**
- * When the `core/file` block is rendering, check if we need to enqueue the `'wp-block-file-view` script.
+ * When the `core/file` block is rendering, check if we need to enqueue the `wp-block-file-view` script.
  *
- * @param array  $attributes The block attributes.
- * @param string $content    The block content.
+ * @param array    $attributes The block attributes.
+ * @param string   $content    The block content.
+ * @param WP_Block $block      The parsed block.
  *
  * @return string Returns the block content.
  */
 function render_block_core_file( $attributes, $content ) {
-	$should_load_view_script = ! empty( $attributes['displayPreview'] ) && ! wp_script_is( 'wp-block-file-view' );
-	if ( $should_load_view_script ) {
-		wp_enqueue_script( 'wp-block-file-view' );
-	}
-
 	// Update object's aria-label attribute if present in block HTML.
-
 	// Match an aria-label attribute from an object tag.
 	$pattern = '@<object.+(?<attribute>aria-label="(?<filename>[^"]+)?")@i';
 	$content = preg_replace_callback(
 		$pattern,
-		function ( $matches ) {
+		static function ( $matches ) {
 			$filename     = ! empty( $matches['filename'] ) ? $matches['filename'] : '';
 			$has_filename = ! empty( $filename ) && 'PDF embed' !== $filename;
 			$label        = $has_filename ?
@@ -41,6 +36,19 @@ function render_block_core_file( $attributes, $content ) {
 		$content
 	);
 
+	// If it's interactive, enqueue the script module and add the directives.
+	if ( ! empty( $attributes['displayPreview'] ) ) {
+		wp_enqueue_script_module( '@wordpress/block-library/file' );
+
+		$processor = new WP_HTML_Tag_Processor( $content );
+		$processor->next_tag();
+		$processor->set_attribute( 'data-wp-interactive', '{"namespace":"core/file"}' );
+		$processor->next_tag( 'object' );
+		$processor->set_attribute( 'data-wp-bind--hidden', '!state.hasPdfPreview' );
+		$processor->set_attribute( 'hidden', true );
+		return $processor->get_updated_html();
+	}
+
 	return $content;
 }
 
@@ -53,6 +61,13 @@ function register_block_core_file() {
 		array(
 			'render_callback' => 'render_block_core_file',
 		)
+	);
+
+	wp_register_script_module(
+		'@wordpress/block-library/file',
+		defined( 'IS_GUTENBERG_PLUGIN' ) && IS_GUTENBERG_PLUGIN ? gutenberg_url( '/build/interactivity/file.min.js' ) : includes_url( 'blocks/file/view.min.js' ),
+		array( '@wordpress/interactivity' ),
+		defined( 'GUTENBERG_VERSION' ) ? GUTENBERG_VERSION : get_bloginfo( 'version' )
 	);
 }
 add_action( 'init', 'register_block_core_file' );

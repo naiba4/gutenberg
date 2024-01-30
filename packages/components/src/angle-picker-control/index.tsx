@@ -9,21 +9,18 @@ import classnames from 'classnames';
  */
 import deprecated from '@wordpress/deprecated';
 import { forwardRef } from '@wordpress/element';
-import { __ } from '@wordpress/i18n';
+import { isRTL, __ } from '@wordpress/i18n';
 
 /**
  * Internal dependencies
  */
-import { FlexBlock, FlexItem } from '../flex';
+import { FlexBlock } from '../flex';
+import { Spacer } from '../spacer';
 import NumberControl from '../number-control';
 import AngleCircle from './angle-circle';
-import { Root } from './styles/angle-picker-control-styles';
-import { space } from '../ui/utils/space';
-import { Text } from '../text';
-import { Spacer } from '../spacer';
-import { COLORS } from '../utils/colors-values';
+import { Root, UnitText } from './styles/angle-picker-control-styles';
 
-import type { WordPressComponentProps } from '../ui/context';
+import type { WordPressComponentProps } from '../context';
 import type { AnglePickerControlProps } from './types';
 
 function UnforwardedAnglePickerControl(
@@ -44,7 +41,6 @@ function UnforwardedAnglePickerControl(
 			'Bottom margin styles for wp.components.AnglePickerControl',
 			{
 				since: '6.1',
-				version: '6.4',
 				hint: 'Set the `__nextHasNoMarginBottom` prop to true to start opting into the new styles, which will become the default in a future version.',
 			}
 		);
@@ -64,13 +60,18 @@ function UnforwardedAnglePickerControl(
 
 	const classes = classnames( 'components-angle-picker-control', className );
 
+	const unitText = <UnitText>°</UnitText>;
+	const [ prefixedUnitText, suffixedUnitText ] = isRTL()
+		? [ unitText, null ]
+		: [ null, unitText ];
+
 	return (
 		<Root
 			{ ...restProps }
 			ref={ ref }
 			__nextHasNoMarginBottom={ __nextHasNoMarginBottom }
 			className={ classes }
-			gap={ 4 }
+			gap={ 2 }
 		>
 			<FlexBlock>
 				<NumberControl
@@ -83,32 +84,17 @@ function UnforwardedAnglePickerControl(
 					step="1"
 					value={ value }
 					spinControls="none"
-					suffix={
-						<Spacer
-							as={ Text }
-							marginBottom={ 0 }
-							marginRight={ space( 3 ) }
-							style={ {
-								color: COLORS.ui.theme,
-							} }
-						>
-							°
-						</Spacer>
-					}
+					prefix={ prefixedUnitText }
+					suffix={ suffixedUnitText }
 				/>
 			</FlexBlock>
-			<FlexItem
-				style={ {
-					marginBottom: space( 1 ),
-					marginTop: 'auto',
-				} }
-			>
+			<Spacer marginBottom="1" marginTop="auto">
 				<AngleCircle
 					aria-hidden="true"
 					value={ value }
 					onChange={ onChange }
 				/>
-			</FlexItem>
+			</Spacer>
 		</Root>
 	);
 }

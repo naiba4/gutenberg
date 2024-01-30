@@ -1,18 +1,28 @@
 /**
  * WordPress dependencies
  */
-import { addQueryArgs } from '@wordpress/url';
+import { addQueryArgs, getQueryArgs, removeQueryArgs } from '@wordpress/url';
+import { privateApis as routerPrivateApis } from '@wordpress/router';
 
 /**
  * Internal dependencies
  */
-import { useHistory } from './index';
+import { unlock } from '../../lock-unlock';
+import {
+	isPreviewingTheme,
+	currentlyPreviewingTheme,
+} from '../../utils/is-previewing-theme';
 
-export function useLink( params = {}, state, shouldReplace = false ) {
-	const history = useHistory();
+const { useHistory } = unlock( routerPrivateApis );
 
+export function getPostLinkProps(
+	history,
+	params = {},
+	state,
+	shouldReplace = false
+) {
 	function onClick( event ) {
-		event.preventDefault();
+		event?.preventDefault();
 
 		if ( shouldReplace ) {
 			history.replace( params, state );
@@ -21,10 +31,30 @@ export function useLink( params = {}, state, shouldReplace = false ) {
 		}
 	}
 
+	const currentArgs = getQueryArgs( window.location.href );
+	const currentUrlWithoutArgs = removeQueryArgs(
+		window.location.href,
+		...Object.keys( currentArgs )
+	);
+
+	if ( isPreviewingTheme() ) {
+		params = {
+			...params,
+			wp_theme_preview: currentlyPreviewingTheme(),
+		};
+	}
+
+	const newUrl = addQueryArgs( currentUrlWithoutArgs, params );
+
 	return {
-		href: addQueryArgs( window.location.href, params ),
+		href: newUrl,
 		onClick,
 	};
+}
+
+export function useLink( params, state, shouldReplace ) {
+	const history = useHistory();
+	return getPostLinkProps( history, params, state, shouldReplace );
 }
 
 export default function Link( {

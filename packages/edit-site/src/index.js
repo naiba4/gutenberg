@@ -4,20 +4,19 @@
 import { store as blocksStore } from '@wordpress/blocks';
 import {
 	registerCoreBlocks,
+	__experimentalGetCoreBlocks,
 	__experimentalRegisterExperimentalCoreBlocks,
 } from '@wordpress/block-library';
 import { dispatch } from '@wordpress/data';
 import deprecated from '@wordpress/deprecated';
 import { createRoot } from '@wordpress/element';
-import {
-	__experimentalFetchLinkSuggestions as fetchLinkSuggestions,
-	__experimentalFetchUrlData as fetchUrlData,
-} from '@wordpress/core-data';
 import { store as editorStore } from '@wordpress/editor';
 import { store as interfaceStore } from '@wordpress/interface';
 import { store as preferencesStore } from '@wordpress/preferences';
-import { addFilter } from '@wordpress/hooks';
-import { registerLegacyWidgetBlock } from '@wordpress/widgets';
+import {
+	registerLegacyWidgetBlock,
+	registerWidgetGroupBlock,
+} from '@wordpress/widgets';
 
 /**
  * Internal dependencies
@@ -36,47 +35,39 @@ export function initializeEditor( id, settings ) {
 	const target = document.getElementById( id );
 	const root = createRoot( target );
 
-	settings.__experimentalFetchLinkSuggestions = ( search, searchOptions ) =>
-		fetchLinkSuggestions( search, searchOptions, settings );
-	settings.__experimentalFetchRichUrlData = fetchUrlData;
-
-	dispatch( blocksStore ).__experimentalReapplyBlockTypeFilters();
-	registerCoreBlocks();
+	dispatch( blocksStore ).reapplyBlockTypeFilters();
+	const coreBlocks = __experimentalGetCoreBlocks().filter(
+		( { name } ) => name !== 'core/freeform'
+	);
+	registerCoreBlocks( coreBlocks );
+	dispatch( blocksStore ).setFreeformFallbackBlockName( 'core/html' );
 	registerLegacyWidgetBlock( { inserter: false } );
+	registerWidgetGroupBlock( { inserter: false } );
 	if ( process.env.IS_GUTENBERG_PLUGIN ) {
 		__experimentalRegisterExperimentalCoreBlocks( {
 			enableFSEBlocks: true,
 		} );
 	}
-	/*
-	 * Prevent adding the Clasic block in the site editor.
-	 * Only add the filter when the site editor is initialized, not imported.
-	 * Also only add the filter(s) after registerCoreBlocks()
-	 * so that common filters in the block library are not overwritten.
-	 *
-	 * This usage here is inspired by previous usage of the filter in the post editor:
-	 * https://github.com/WordPress/gutenberg/pull/37157
-	 */
-	addFilter(
-		'blockEditor.__unstableCanInsertBlockType',
-		'removeClassicBlockFromInserter',
-		( canInsert, blockType ) => {
-			if ( blockType.name === 'core/freeform' ) {
-				return false;
-			}
-			return canInsert;
-		}
-	);
 
 	// We dispatch actions and update the store synchronously before rendering
 	// so that we won't trigger unnecessary re-renders with useEffect.
 	dispatch( preferencesStore ).setDefaults( 'core/edit-site', {
+		welcomeGuide: true,
+		welcomeGuideStyles: true,
+		welcomeGuidePage: true,
+		welcomeGuideTemplate: true,
+	} );
+
+	dispatch( preferencesStore ).setDefaults( 'core', {
+		allowRightClickOverrides: true,
+		distractionFree: false,
 		editorMode: 'visual',
 		fixedToolbar: false,
 		focusMode: false,
+		inactivePanels: [],
 		keepCaretInsideBlock: false,
-		welcomeGuide: true,
-		welcomeGuideStyles: true,
+		openPanels: [ 'post-status' ],
+		showBlockBreadcrumbs: true,
 		showListViewByDefault: false,
 	} );
 
@@ -115,3 +106,5 @@ export function reinitializeEditor() {
 export { default as PluginSidebar } from './components/sidebar-edit-mode/plugin-sidebar';
 export { default as PluginSidebarMoreMenuItem } from './components/header-edit-mode/plugin-sidebar-more-menu-item';
 export { default as PluginMoreMenuItem } from './components/header-edit-mode/plugin-more-menu-item';
+export { default as PluginTemplateSettingPanel } from './components/plugin-template-setting-panel';
+export { store } from './store';
