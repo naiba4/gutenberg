@@ -120,7 +120,7 @@
 		"@storybook/addon-toolbars": "7.2.2",
 		"@storybook/addon-viewport": "7.2.2",
 		"@storybook/react": "7.2.2",
-		"@storybook/react-webpack5": "7.2.2",
+		"@storybook/react-webpack5": "8.4.0",
 		"@storybook/source-loader": "7.2.2",
 		"@storybook/theming": "7.2.2",
 		"@testing-library/jest-dom": "5.16.5",
