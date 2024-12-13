@@ -252,11 +252,11 @@
 		"storybook-source-link": "2.0.9",
 		"strip-json-comments": "5.0.0",
 		"style-loader": "3.2.1",
-		"terser-webpack-plugin": "5.3.9",
+		"terser-webpack-plugin": "5.3.11",
 		"typescript": "5.1.6",
 		"uglify-js": "3.13.7",
 		"uuid": "9.0.1",
-		"webdriverio": "8.16.20",
+		"webdriverio": "9.4.2",
 		"webpack": "5.88.2",
 		"webpack-bundle-analyzer": "4.9.1",
 		"worker-farm": "1.7.0"
